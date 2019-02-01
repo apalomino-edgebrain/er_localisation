@@ -15,8 +15,10 @@ find_package(catkin REQUIRED COMPONENTS
   robot_localization
 )
 
+include(FindPkgConfig)
+
 ## GeographicLib
-find_package(GeographicLib 1.34 REQUIRED)
+find_package(GeographicLib REQUIRED)
 
 if (NOT MSVC)
   set (CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
