@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(er_localisation)
+project(earth_rover_localization)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
@@ -13,7 +13,31 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   tf
   piksi_rtk_msgs
+  robot_localization
 )
+
+## GeographicLib
+find_package(GeographicLib 1.34 REQUIRED)
+
+if (NOT MSVC)
+  set (CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+endif ()
+
+if (CMAKE_VERSION VERSION_LESS 2.8.11)
+  include_directories (${GeographicLib_INCLUDE_DIRS})
+  add_definitions (${GeographicLib_DEFINITIONS})
+endif ()
+
+if (MSVC)
+  get_target_property (_LIBTYPE ${GeographicLib_LIBRARIES} TYPE)
+  if (_LIBTYPE STREQUAL "SHARED_LIBRARY")
+    # On Windows systems, copy the shared library to build directory
+    add_custom_command (TARGET ${PROJECT_NAME} POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E
+      copy $<TARGET_FILE:${GeographicLib_LIBRARIES}> ${CMAKE_CFG_INTDIR}
+      COMMENT "Copying shared library for GeographicLib")
+  endif ()
+endif () 
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -120,7 +144,10 @@ catkin_package(
 include_directories(
 # include
   ${catkin_INCLUDE_DIRS}
+  ${GeographicLib_INCLUDE_DIRS}
 )
+
+add_definitions (${GeographicLib_DEFINITIONS})
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
@@ -136,13 +163,13 @@ include_directories(
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 add_executable(heading_listener src/heading_listener.cpp)
-
+add_executable(set_datum src/set_datum.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
 ## target back to the shorter version for ease of user use
 ## e.g. "rosrun someones_pkg node" instead of "rosrun someones_pkg someones_pkg_node"
-# set_target_properties(${PROJECT_NAME}_node PROPERTIES OUTPUT_NAME node PREFIX "")
+## set_target_properties(set_datum PROPERTIES CXX_STANDARD 11)
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
@@ -150,6 +177,7 @@ add_dependencies(heading_listener ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(heading_listener ${catkin_LIBRARIES})
+target_link_libraries(set_datum ${catkin_LIBRARIES} ${GeographicLib_LIBRARIES})
 
 
 #############
@@ -187,6 +215,14 @@ target_link_libraries(heading_listener ${catkin_LIBRARIES})
 #   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 # )
 
+install(DIRECTORY launch/
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch
+)
+
+install(DIRECTORY cfg/
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/cfg
+)
+
 #############
 ## Testing ##
 #############
@@ -199,3 +235,4 @@ target_link_libraries(heading_listener ${catkin_LIBRARIES})
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
+
