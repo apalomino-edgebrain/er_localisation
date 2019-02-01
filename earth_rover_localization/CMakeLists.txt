@@ -15,9 +15,6 @@ find_package(catkin REQUIRED COMPONENTS
   robot_localization
 )
 
-## System dependencies are found with CMake's conventions
-find_package(Boost REQUIRED COMPONENTS system)
-
 ## GeographicLib
 find_package(GeographicLib REQUIRED)
 
