@@ -15,6 +15,9 @@ find_package(catkin REQUIRED COMPONENTS
   robot_localization
 )
 
+# add package modules path, not needed in dependend packages
+list(INSERT CMAKE_MODULE_PATH 0 "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules")
+
 ## GeographicLib
 find_package(GeographicLib REQUIRED)
 
