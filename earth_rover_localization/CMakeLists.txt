@@ -11,7 +11,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
   std_msgs
-  tf
+  tf2
   piksi_rtk_msgs
   robot_localization
 )
