@@ -13,6 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   piksi_rtk_msgs
   robot_localization
+  tf
 )
 
 # add package modules path, not needed in dependend packages
